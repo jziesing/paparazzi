@@ -121,12 +121,12 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="1500"/>
-    <define name="PHI_DGAIN"  value="1000"/>
+    <define name="PHI_PGAIN"  value="1200"/>
+    <define name="PHI_DGAIN"  value="900"/>
     <define name="PHI_IGAIN"  value="100"/>
 
-    <define name="THETA_PGAIN"  value="1500"/>
-    <define name="THETA_DGAIN"  value="1000"/>
+    <define name="THETA_PGAIN"  value="1200"/>
+    <define name="THETA_DGAIN"  value="900"/>
     <define name="THETA_IGAIN"  value="100"/>
 
     <define name="PSI_PGAIN"  value="1500"/>
