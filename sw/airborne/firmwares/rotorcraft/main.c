@@ -138,11 +138,11 @@ STATIC_INLINE void main_init( void ) {
 
   mcu_init();
 
-  for (uint32_t startup_counter=0; startup_counter<8000000; startup_counter++){
-	  for (uint32_t startup_counter2=0; startup_counter2<4; startup_counter2++) {
-		  __asm("nop");
-	  }
-  }
+  //for (uint32_t startup_counter=0; startup_counter<8000000; startup_counter++){
+  //	  for (uint32_t startup_counter2=0; startup_counter2<4; startup_counter2++) {
+  //	  __asm("nop");
+  //	  }
+  //}
 
   sys_time_init();
   electrical_init();
@@ -224,7 +224,7 @@ STATIC_INLINE void main_periodic( void ) {
 
   modules_periodic_task();
 #ifndef NO_LUFTBOOT
-  luftboot_check();
+  //luftboot_check();
 #endif
 
   if (autopilot_in_flight) {

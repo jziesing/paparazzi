@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2012 Christophe DeWagter
  *
  * This file is part of paparazzi.
  *
@@ -21,17 +19,15 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef IMU_ASPIRIN_H
-#define IMU_ASPIRIN_H
+#ifndef IMU_ASPIRIN_2_H
+#define IMU_ASPIRIN_2_H
 
 #include "generated/airframe.h"
 #include "subsystems/imu.h"
+#include "led.h"
 
 
-#ifdef IMU_ASPIRIN_VERSION_2_0
-#define IMU_MAG_X_CHAN 2
-#define IMU_MAG_Y_CHAN 0
-#define IMU_MAG_Z_CHAN 1
+#ifdef IMU_ASPIRIN_VERSION_2_1
 #if !defined IMU_MAG_X_SIGN & !defined IMU_MAG_Y_SIGN & !defined IMU_MAG_Z_SIGN
 #define IMU_MAG_X_SIGN 1
 #define IMU_MAG_Y_SIGN 1
@@ -103,43 +99,22 @@ enum Aspirin2Status
 
 struct ImuAspirin2 {
   volatile enum Aspirin2Status status;
-  volatile uint8_t imu_available;
+  volatile uint8_t imu_spi_data_received;
   volatile uint8_t imu_tx_buf[64];
   volatile uint8_t imu_rx_buf[64];
-  uint32_t time_since_last_reading;
 };
 
 extern struct ImuAspirin2 imu_aspirin2;
 
 
-#define ASPIRIN2_TIMEOUT 3
-/*
-
-#define foo_handler() {}
-#define ImuMagEvent(_mag_handler) {					\
-      MagEvent(foo_handler); \
-}
-
-
-    if (hmc5843.data_available) {			\
-      imu.mag_unscaled.x = hmc5843.data.value[IMU_MAG_X_CHAN];		\
-      imu.mag_unscaled.y = hmc5843.data.value[IMU_MAG_Y_CHAN];		\
-      imu.mag_unscaled.z = hmc5843.data.value[IMU_MAG_Z_CHAN];		\
-      _mag_handler();							\
-      hmc5843.data_available = FALSE;		\
-    }									\
-*/
-
-/* underlying architecture */
-#include "subsystems/imu/imu_aspirin2_arch.h"
-/* must be implemented by underlying architecture */
-extern void imu_aspirin2_arch_init(void);
-
-
-static inline void imu_from_buff(void)
+static inline uint8_t imu_from_buff(void)
 {
   int32_t x, y, z, p, q, r, Mx, My, Mz;
 
+#define MPU_OFFSET_STATUS 1
+  if ((imu_aspirin2.imu_rx_buf[MPU_OFFSET_STATUS] & 0x01) == 0x00) {
+    return 0;
+  }
 
   // If the itg3200 I2C transaction has succeeded: convert the data
 #define MPU_OFFSET_GYRO 10
@@ -160,54 +135,44 @@ static inline void imu_from_buff(void)
 #ifdef LISA_M_LONGITUDINAL_X
   RATES_ASSIGN(imu.gyro_unscaled, q, -p, r);
   VECT3_ASSIGN(imu.accel_unscaled, y, -x, z);
+  VECT3_ASSIGN(imu.mag_unscaled, -Mx, -Mz, My);
 #else
   RATES_ASSIGN(imu.gyro_unscaled, p, q, r);
   VECT3_ASSIGN(imu.accel_unscaled, x, y, z);
+  VECT3_ASSIGN(imu.mag_unscaled, Mz, -Mx, My);
 #endif
 
-  VECT3_ASSIGN(imu.mag_unscaled, Mx, My, Mz);
-
-  // Is this is new data
-#define MPU_OFFSET_STATUS 1
-  if (imu_aspirin2.imu_rx_buf[MPU_OFFSET_STATUS] & 0x01)
-  {
-    //gyr_valid = TRUE;
-    //acc_valid = TRUE;
-  }
-  else
-  {
-  }
+  return 1;
 }
 
 
 static inline void imu_aspirin2_event(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
 {
+  static uint32_t no_buff_data_timeout = 0;
   if (imu_aspirin2.status == Aspirin2StatusUninit) return;
 
-  // imu_aspirin2_arch_int_disable();
-
-  if (imu_aspirin2.imu_available)
-  {
-    imu_aspirin2.time_since_last_reading = 0;
-    imu_aspirin2.imu_available = FALSE;
-    imu_from_buff();
-
-    _gyro_handler();
-    _accel_handler();
-    _mag_handler();
+  if (imu_aspirin2.imu_spi_data_received) {
+    imu_aspirin2.imu_spi_data_received = FALSE;
+    if (imu_from_buff())
+    {
+      _gyro_handler();
+      _accel_handler();
+      _mag_handler();
+      no_buff_data_timeout = 0;
+    } else {
+	    no_buff_data_timeout++;
+	    if (no_buff_data_timeout >= 1000) {
+		    LED_TOGGLE(5);
+		    /* XXX: the SPI driver should be reset here to make sure we
+		     * will be able to reinitialize the MPU6000! */
+		    imu_aspirin2.status = Aspirin2StatusUninit;
+	    }
+    }
   }
-  // imu_aspirin2_arch_int_enable();
-
-  // Reset everything if we've been waiting too long
-  //if (imu_aspirin2.time_since_last_reading > ASPIRIN2_TIMEOUT) {
-  //  imu_aspirin2.time_since_last_reading = 0;
-  //  return;
-  //}
-
 }
 
 #define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) { \
   imu_aspirin2_event(_gyro_handler, _accel_handler, _mag_handler); \
 }
 
-#endif /* IMU_ASPIRIN_H */
+#endif /* IMU_ASPIRIN_2_H */
