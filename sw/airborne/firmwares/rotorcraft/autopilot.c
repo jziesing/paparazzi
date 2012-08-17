@@ -320,7 +320,7 @@ static inline void autopilot_check_motors_on( void ) {
 		if (THROTTLE_STICK_DOWN() && ahrs_is_aligned() && !autopilot_first_boot && radio_control.values[RADIO_MODE] < -4000)
 			autopilot_rc_unkilled_startup = FALSE;
 	if (autopilot_first_boot && ahrs_is_aligned()){
-		RunOnceAfter(2048,{autopilot_first_boot = FALSE;});
+		RunOnceAfter(512,{autopilot_first_boot = FALSE;});
 		}	
 	if (!autopilot_motors_on && !autopilot_first_boot && autopilot_mode1_kill){
 		autopilot_motors_on=!THROTTLE_STICK_DOWN() && radio_control.values[RADIO_MODE] < -4000 && YAW_STICK_CENTERED() && PITCH_STICK_CENTERED() && ROLL_STICK_CENTERED() && ahrs_is_aligned() && !autopilot_rc_unkilled_startup;
