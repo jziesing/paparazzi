@@ -25,7 +25,7 @@
 #include "generated/airframe.h"
 #include "subsystems/imu.h"
 #include "led.h"
-
+#include "mcu_periph/spi.h"
 
 #ifdef IMU_ASPIRIN_VERSION_2_1
 #if !defined IMU_MAG_X_SIGN & !defined IMU_MAG_Y_SIGN & !defined IMU_MAG_Z_SIGN
@@ -163,8 +163,7 @@ static inline void imu_aspirin2_event(void (* _gyro_handler)(void), void (* _acc
 	    no_buff_data_timeout++;
 	    if (no_buff_data_timeout >= 1000) {
 		    LED_TOGGLE(5);
-		    /* XXX: the SPI driver should be reset here to make sure we
-		     * will be able to reinitialize the MPU6000! */
+		    spi_reset();
 		    imu_aspirin2.status = Aspirin2StatusUninit;
 	    }
     }

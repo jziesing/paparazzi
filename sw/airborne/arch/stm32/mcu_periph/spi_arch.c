@@ -159,7 +159,24 @@ void spi_rw(struct spi_transaction  * _trans)
   DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, ENABLE);
 }
 
+void spi_reset(void)
+{
+  Spi2Slave0Unselect();
+  DMA_ClearITPendingBit(DMA1_IT_GL4);
 
+  // disable DMA Channel
+  DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, DISABLE);
+  // Disable SPI_2 Rx and TX request
+  SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, DISABLE);
+  SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, DISABLE);
+  // Disable DMA1 Channel4 and 5
+  DMA_Cmd(DMA1_Channel4, DISABLE);
+  DMA_Cmd(DMA1_Channel5, DISABLE);
+
+  slave0->status = SPITransSuccess;
+  *(slave0->ready) = 0;
+
+}
 
 // Accel end of DMA transfert
 void dma1_c4_irq_handler(void)
