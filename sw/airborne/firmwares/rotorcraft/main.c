@@ -138,11 +138,11 @@ STATIC_INLINE void main_init( void ) {
 
   mcu_init();
 
-  //for (uint32_t startup_counter=0; startup_counter<4000000; startup_counter++){
-  //	  for (uint32_t startup_counter2=0; startup_counter2<4; startup_counter2++) {
-  //	  __asm("nop");
-  //	  }
-  //}
+  for (uint32_t startup_counter=0; startup_counter<4000000; startup_counter++){
+  	  for (uint32_t startup_counter2=0; startup_counter2<4; startup_counter2++) {
+  	  __asm("nop");
+  	  }
+  }
 
   sys_time_init();
   electrical_init();
