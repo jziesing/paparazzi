@@ -224,7 +224,7 @@ STATIC_INLINE void main_periodic( void ) {
 
   modules_periodic_task();
 #ifndef NO_LUFTBOOT
-  //luftboot_check();
+  luftboot_check();
 #endif
 
   if (autopilot_in_flight) {
