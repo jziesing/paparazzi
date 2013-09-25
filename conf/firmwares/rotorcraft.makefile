@@ -184,6 +184,29 @@ LISA_M_BARO ?= BARO_BOARD_BMP085
   endif
   ap.CFLAGS += -D$(LISA_M_BARO)
 
+else ifeq ($(BOARD), lisa_mx)
+# XXX: this is an exact copy of lisa_m, this probably should be merged somehow
+# into one...
+# defaults to i2c baro bmp085 on the board
+LISA_M_BARO ?= BARO_BOARD_BMP085
+  ifeq ($(LISA_M_BARO), BARO_MS5611_SPI)
+    include $(CFG_SHARED)/spi_master.makefile
+    ap.CFLAGS += -DUSE_SPI2 -DUSE_SPI_SLAVE3
+    ap.srcs += peripherals/ms5611.c
+    ap.srcs += peripherals/ms5611_spi.c
+    ap.srcs += subsystems/sensors/baro_ms5611_spi.c
+  else ifeq ($(LISA_M_BARO), BARO_MS5611_I2C)
+    ap.CFLAGS += -DUSE_I2C2
+    ap.srcs += peripherals/ms5611.c
+    ap.srcs += peripherals/ms5611_i2c.c
+    ap.srcs += subsystems/sensors/baro_ms5611_i2c.c
+  else ifeq ($(LISA_M_BARO), BARO_BOARD_BMP085)
+	ap.srcs += peripherals/bmp085.c
+    ap.srcs += $(SRC_BOARD)/baro_board.c
+    ap.CFLAGS += -DUSE_I2C2
+  endif
+  ap.CFLAGS += -D$(LISA_M_BARO)
+
 # Lisa/S baro
 else ifeq ($(BOARD), lisa_s)
 # defaults to SPI baro MS5611 on the board
