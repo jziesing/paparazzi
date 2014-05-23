@@ -45,7 +45,7 @@
 #define PCLK AHB_CLK/2
 #endif
 
-#define ONE_MHZ_CLK 1000000
+#define ONE_MHZ_CLK 32000000
 
 #ifdef STM32F1
 /**

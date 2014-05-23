@@ -12,10 +12,10 @@
 <airframe name="ladylisa_ls10srfbr">
 
   <servos driver="Pwm">
-    <servo name="NE" no="0" min="0" neutral="100" max="2500"/>
-    <servo name="SE" no="1" min="0" neutral="100" max="2500"/>
-    <servo name="SW" no="2" min="0" neutral="100" max="2500"/>
-    <servo name="NW" no="3" min="0" neutral="100" max="2500"/>
+    <servo name="NE" no="0" min="0" neutral="50" max="1000"/>
+    <servo name="SE" no="1" min="0" neutral="50" max="1000"/>
+    <servo name="SW" no="2" min="0" neutral="50" max="1000"/>
+    <servo name="NW" no="3" min="0" neutral="50" max="1000"/>
   </servos>
 
   <commands>
@@ -191,7 +191,7 @@
 
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators"     type="pwm">
-      <define name="SERVO_HZ" value="400"/>
+      <define name="SERVO_HZ" value="32000"/>
       <define name="USE_SERVOS_1AND2"/>
     </subsystem>
 
